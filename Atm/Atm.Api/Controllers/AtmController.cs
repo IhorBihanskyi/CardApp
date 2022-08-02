@@ -1,24 +1,19 @@
 ﻿using Atm.Api.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Atm.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class AtmController : Controller
+    public class AtmController : ControllerBase
     {
         private readonly ICardService _cardService;
-        private readonly IUserAccessorService _userAccessorService;
-        public AtmController(ICardService cardService, IUserAccessorService userAccessorService)
+        public AtmController(ICardService cardService)
         {
             _cardService = cardService;
-            _userAccessorService = userAccessorService;
         }
 
         [HttpGet("Init")]
-        [AllowAnonymous]
         public ActionResult Init(string cardNumber)
         {
             var card = _cardService.GetCards().FirstOrDefault(s => s.CardNumber == cardNumber);
@@ -27,31 +22,26 @@ namespace Atm.Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [Route("Init/Authorize")]
-        [AllowAnonymous]
+        [HttpPost("Init/Authorize")]
         public IActionResult Authorize([FromForm] string password)
         {
-            var authResult = _cardService.Authenticate(password);
-            return Ok(authResult);
+            var card = _cardService.GetCards().FirstOrDefault(s => s.Password == password);
+            _ = card ?? throw new ArgumentException("Password incorrect");
+            return Ok();
         }
 
         [HttpPut("Init/Authorize/Withdraw")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        public ActionResult Withdraw(int sum)
+        public ActionResult Withdraw(int sum, string cardNumber)
         {
-            var accessor = _userAccessorService.GetCardAccess();
-            var card = _cardService.GetCards().FirstOrDefault(s => s.FullName == accessor);
+            var card = _cardService.GetCards().FirstOrDefault(s => s.CardNumber == cardNumber);
             int money = card.Money - sum;
             return Ok(money);
         }
 
         [HttpGet("Init/Authorize/CheckBalance")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        public ActionResult CheckBalance()
+        public ActionResult CheckBalance(string cardNumber)
         {
-            var accessor = _userAccessorService.GetCardAccess();
-            var card = _cardService.GetCards().FirstOrDefault(x => x.FullName == accessor);
+            var card = _cardService.GetCards().FirstOrDefault(s => s.CardNumber == cardNumber);
             var balance = card.Money;
             return Ok(balance);
         }
