@@ -1,6 +1,5 @@
 [
   {
-    "Id": "1",
     "CardNumber": "4444333322221111",
     "FullName": "Troy Mcfarland",
     "Password": "123",
@@ -8,7 +7,6 @@
     "Money": "800"
   },
   {
-    "Id": "2",
     "CardNumber": "3444333322221111",
     "FullName": "Eddy Mcfarland",
     "Password": "qwefd5A",

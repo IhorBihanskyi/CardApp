@@ -1,6 +1,5 @@
 ﻿using Atm.Heplers;
 using Atm.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -27,10 +26,10 @@ namespace Atm.Services
 
             var claims = new List<Claim>
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, card.FullName),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, card.CardNumber),
                 };
 
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, card.Id.ToString()));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, card.FullName));
 
             var now = DateTime.UtcNow;
 

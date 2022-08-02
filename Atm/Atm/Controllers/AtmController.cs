@@ -1,6 +1,7 @@
 ﻿using Atm.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Atm.Controllers
 {
@@ -9,9 +10,11 @@ namespace Atm.Controllers
     public class AtmController : Controller
     {
         private readonly ICardService _cardService;
-        public AtmController(ICardService cardService)
+        private readonly IUserAccessorService _userAccessorService;
+        public AtmController(ICardService cardService, IUserAccessorService userAccessorService)
         {
             _cardService = cardService;
+            _userAccessorService = userAccessorService;
         }
 
         [HttpGet("Init")]
@@ -35,19 +38,22 @@ namespace Atm.Controllers
 
         [HttpPost("Init/Authorize/Withdraw")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public ActionResult Withdraw(int sum, int id)
+        public ActionResult Withdraw(int sum)
         {
-            var card = _cardService.GetCards().FirstOrDefault(s => s.Id == id);
+            var accessor = _userAccessorService.GetCardAccess();
+            var card = _cardService.GetCards().FirstOrDefault(s => s.FullName == accessor);
             int money = card.Money - sum;
             return Ok(money);
         }
 
         [HttpGet("InitAuthorize/CheckBalance")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public ActionResult CheckBalance(int id)
+        public ActionResult CheckBalance()
         {
-            var card = _cardService.GetCards().FirstOrDefault(s => s.Id == id);
-            return Ok(card.Money);
+            var accessor = _userAccessorService.GetCardAccess();
+            var card = _cardService.GetCards().FirstOrDefault(x => x.FullName == accessor);
+            var balance = card.Money;
+            return Ok(balance);
         }
     }
 }

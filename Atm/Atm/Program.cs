@@ -24,7 +24,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
     };
 });
-
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddSingleton<IUserAccessorService, AccessorService>();
 builder.Services.AddScoped<ICardService, CardService>();
 
 builder.Services.AddControllers();
