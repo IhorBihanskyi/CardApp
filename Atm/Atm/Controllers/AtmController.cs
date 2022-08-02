@@ -36,7 +36,7 @@ namespace Atm.Controllers
             return Ok(authResult);
         }
 
-        [HttpPost("Init/Authorize/Withdraw")]
+        [HttpPut("Init/Authorize/Withdraw")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public ActionResult Withdraw(int sum)
         {
@@ -46,7 +46,7 @@ namespace Atm.Controllers
             return Ok(money);
         }
 
-        [HttpGet("InitAuthorize/CheckBalance")]
+        [HttpGet("Init/Authorize/CheckBalance")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public ActionResult CheckBalance()
         {
