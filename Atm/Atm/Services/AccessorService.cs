@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Atm.Services
+namespace Atm.Api.Services
 {
     public class AccessorService: IUserAccessorService
     {

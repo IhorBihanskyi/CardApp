@@ -1,6 +1,6 @@
-﻿using Atm.Models;
+﻿using Atm.Api.Models;
 
-namespace Atm.Services
+namespace Atm.Api.Services
 {
     public interface ICardService
     {

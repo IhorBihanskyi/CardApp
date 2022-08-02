@@ -1,4 +1,4 @@
-﻿namespace Atm.Services
+﻿namespace Atm.Api.Services
 {
     public interface IUserAccessorService
     {

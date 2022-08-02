@@ -1,7 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace Atm.Heplers
+namespace Atm.Api.Heplers
 {
     public class Constants
     {

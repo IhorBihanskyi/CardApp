@@ -1,9 +1,9 @@
-﻿using Atm.Services;
+﻿using Atm.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace Atm.Controllers
+namespace Atm.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

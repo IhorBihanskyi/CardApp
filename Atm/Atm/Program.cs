@@ -1,5 +1,5 @@
-using Atm.Heplers;
-using Atm.Services;
+using Atm.Api.Heplers;
+using Atm.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;

@@ -1,11 +1,11 @@
-﻿using Atm.Heplers;
-using Atm.Models;
+﻿using Atm.Api.Heplers;
+using Atm.Api.Models;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace Atm.Services
+namespace Atm.Api.Services
 {
     public class CardService : ICardService
     {

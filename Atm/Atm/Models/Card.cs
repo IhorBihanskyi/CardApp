@@ -1,4 +1,4 @@
-﻿namespace Atm.Models
+﻿namespace Atm.Api.Models
 {
     public class Card
     {
