@@ -3,14 +3,14 @@
     "CardNumber": "4444333322221111",
     "FullName": "Troy Mcfarland",
     "Password": "123",
-    "CardBrand": "Visa",
+    "CardBrand": 0,
     "Money": "800"
   },
   {
     "CardNumber": "3444333322221111",
     "FullName": "Eddy Mcfarland",
     "Password": "qwefd5A",
-    "CardBrand": "MasterCard",
+    "CardBrand": 1,
     "Money": "400"
   }
 ]
