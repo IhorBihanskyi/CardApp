@@ -1,15 +1,24 @@
-﻿using Newtonsoft.Json.Converters;
-using System.Text.Json.Serialization;
-
-namespace Atm.Api.Models
+﻿namespace Atm.Api.Models
 {
     public class Card
     {
-        public string CardNumber { get; set; }
-        public string FullName { get; set; }
-        public string Password { get; set; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public CardBrands CardBrand { get; set; }
-        public int Money { get; set; }
+        public string CardNumber { get; }
+        public string FullName { get; }
+        public string Password { get; }
+        public CardBrands CardBrand { get; }
+        public int Balance { get; }
+
+        public Card(string cardNumber, string fullName, string password, CardBrands cardBrand, int balance)
+        {
+            CardNumber = cardNumber;
+            FullName = fullName;
+            Password = password;
+            CardBrand = cardBrand;
+            Balance = balance;
+        }
+
+        public bool IsPasswordEqual(string cardPassword) => cardPassword == Password;
+
+        public int GetBalance() => Balance;
     }
 }
