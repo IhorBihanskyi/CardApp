@@ -1,12 +1,13 @@
-﻿using Atm.Api.Models;
+﻿using Atm.Api.Controllers.Requests;
+using Atm.Api.Controllers.Responses;
+using Atm.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Atm.Api.Controllers
 {
-    public sealed record AuthorizeModel(string CardPassword);
 
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("/api/[controller]/cards/")]
     public class AtmController : ControllerBase
     {
         private static readonly IReadOnlyCollection<Card> Cards = new List<Card>
@@ -15,39 +16,47 @@ namespace Atm.Api.Controllers
             new ("5200000000001005", "Levi Downs", "teEAxnqg", CardBrands.MasterCard, 400)
         };
 
-        [HttpGet("cards/{cardNumber}/init")]
+        [HttpGet("{cardNumber}/init")]
         public IActionResult Init(string cardNumber)
         {
             return Cards.Any(x => x.CardNumber == cardNumber)
-                ? Ok(new { Message = "Welcome in the system" })
-                :NotFound();
+                ? Ok(new { Message = "Welcome in the system!" })
+                : NotFound();
         }
 
-        [HttpPost("cards/{cardNumber}/authorize")]
-        public IActionResult Authorize([FromRoute] string cardNumber, [FromBody] AuthorizeModel model)
+        [HttpPost("authorize")]
+        public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
         {
-            return Cards.SingleOrDefault(x => x.CardNumber == cardNumber && x.IsPasswordEqual(model.CardPassword))
-                is { }
-                ? Ok(new { Message = "Authorization is successfully" })
-                : Unauthorized();
-        }
-
-        [HttpPut("cards/{cardNumber}/withdraw/{sum}")]
-        public IActionResult Withdraw(int sum, string cardNumber)
-        {
-            return Cards.SingleOrDefault(x => x.CardNumber == cardNumber) switch
+            return Cards.SingleOrDefault(x => x.CardNumber == request.cardNumber) switch
             {
-                { } card => Ok(new { Message = $"Balance now is {card.GetBalance() - sum}" }),
+                { } card => card.IsPasswordEqual(request.CardPassword)
+                ? Ok(new AtmResponce("Authorization was successfully!"))
+                : Unauthorized(new AtmResponce("Invalid password!")),
                 _ => NotFound()
             };
         }
 
-        [HttpGet("cards/{cardNumber}/checkBalance")]
+        [HttpPost("{cardNumber}/withdraw/{sum}")]
+        public IActionResult Withdraw([FromRoute] CardWithdrawRequest request)
+        {
+            var card = Cards.SingleOrDefault(x => x.CardNumber == request.cardNumber);
+
+            if (card is null)
+            {
+                return NotFound();
+            }
+
+            card.Withdraw(request.sum);
+
+            return Ok(new AtmResponce("The operation was successfully!"));
+        }
+
+        [HttpGet("{cardNumber}/checkBalance")]
         public IActionResult CheckBalance(string cardNumber)
         {
             return Cards.SingleOrDefault(x => x.CardNumber == cardNumber) switch
             {
-                { } card => Ok(new { Message = $"Balance is {card.GetBalance()}" }),
+                { } card => Ok(new AtmResponce($"Balance is {card.GetBalance()}")),
                 _ => NotFound()
             };
         }
