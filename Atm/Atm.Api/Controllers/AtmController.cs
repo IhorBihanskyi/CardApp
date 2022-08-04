@@ -27,7 +27,7 @@ namespace Atm.Api.Controllers
         [HttpPost("authorize")]
         public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
         {
-            return Cards.SingleOrDefault(x => x.CardNumber == request.cardNumber) switch
+            return Cards.SingleOrDefault(x => x.CardNumber == request.CardNumber) switch
             {
                 { } card => card.IsPasswordEqual(request.CardPassword)
                 ? Ok(new AtmResponce("Authorization was successfully!"))
@@ -39,19 +39,19 @@ namespace Atm.Api.Controllers
         [HttpPost("{cardNumber}/withdraw/{sum}")]
         public IActionResult Withdraw([FromRoute] CardWithdrawRequest request)
         {
-            var card = Cards.SingleOrDefault(x => x.CardNumber == request.cardNumber);
+            var card = Cards.SingleOrDefault(x => x.CardNumber == request.CardNumber);
 
             if (card is null)
             {
                 return NotFound();
             }
 
-            card.Withdraw(request.sum);
+            card.Withdraw(request.Amount);
 
             return Ok(new AtmResponce("The operation was successfully!"));
         }
 
-        [HttpGet("{cardNumber}/checkBalance")]
+        [HttpGet("{cardNumber}/balance")]
         public IActionResult CheckBalance(string cardNumber)
         {
             return Cards.SingleOrDefault(x => x.CardNumber == cardNumber) switch

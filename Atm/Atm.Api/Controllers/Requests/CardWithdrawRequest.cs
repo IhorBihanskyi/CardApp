@@ -1,4 +1,4 @@
 ﻿namespace Atm.Api.Controllers.Requests
 {
-    public sealed record CardWithdrawRequest(decimal sum, string cardNumber);
+    public sealed record CardWithdrawRequest(decimal Amount, string CardNumber);
 }

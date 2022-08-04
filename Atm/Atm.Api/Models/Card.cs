@@ -19,6 +19,6 @@
 
         public bool IsPasswordEqual(string cardPassword) => cardPassword == CardPassword;
         public decimal GetBalance() => Balance;
-        public decimal Withdraw(decimal sum) => Balance -= sum;
+        public decimal Withdraw(decimal amount) => Balance -= amount;
     }
 }
