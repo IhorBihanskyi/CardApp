@@ -1,11 +1,9 @@
-﻿using Atm.Api.Models;
+﻿namespace Atm.Api.Interfaces;
 
-namespace Atm.Api.Interfaces
+public interface IAtmService
 {
-    public interface IAtmService
-    {
-        bool IsCardNumberExist(string cardNumber);
-        Card FindCard(string cardNumber);
-        bool AuthorizeCard(string cardNumber, string cardPassword);
-    }
+    bool IsCardExist(string cardNumber);
+    decimal GetCardBalance(string cardNumber);
+    bool VerifyCardPassword(string cardNumber, string cardPassword);
+    void Withdraw(string cardNumber, int amount);
 }

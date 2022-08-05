@@ -1,60 +1,49 @@
-﻿using Atm.Api.Controllers.Requests;
-using Atm.Api.Controllers.Responses;
-using Atm.Api.Interfaces;
-using Atm.Api.Models;
+﻿using Atm.Api.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Atm.Api.Controllers.Requests;
+using Atm.Api.Controllers.Responses;
 
-namespace Atm.Api.Controllers
+namespace Atm.Api.Controllers;
+
+[ApiController]
+[Route("/api/[controller]/cards/")]
+public class AtmController : ControllerBase
 {
-
-    [ApiController]
-    [Route("/api/[controller]/cards/")]
-    public class AtmController : ControllerBase
+    private readonly IAtmService _atmService;
+    public AtmController(IAtmService atmService)
     {
-        private readonly IAtmService _atmService;
-        public AtmController(IAtmService atmService)
-        {
-            _atmService = atmService;
-        }
+        _atmService = atmService;
+    }
 
-        [HttpGet("{cardNumber}/init")]
-        public IActionResult Init(string cardNumber)
-        {
-            return _atmService.IsCardNumberExist(cardNumber)
-                ? Ok(new AtmResponce("Welcome in the system!"))
-                : NotFound(new AtmResponce("Your card isn't in the system!"));
-        }
+    [HttpGet("{cardNumber}/init")]
+    public IActionResult Init(string cardNumber)
+    {
+        return _atmService.IsCardExist(cardNumber)
+            ? Ok(new AtmResponse("Welcome in the system!"))
+            : NotFound(new AtmResponse("Your card isn't in the system!"));
+    }
 
-        [HttpPost("authorize")]
-        public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
-        {
-            return _atmService.AuthorizeCard(request.CardNumber, request.CardPassword)
-                ? Ok(new AtmResponce("Authorization was successfully!"))
-                : Unauthorized(new AtmResponce("Invalid password"!));
-        }
+    [HttpPost("authorize")]
+    public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
+    {
+        return _atmService.VerifyCardPassword(request.CardNumber, request.CardPassword)
+            ? Ok(new AtmResponse("Authorization was successfully!"))
+            : Unauthorized(new AtmResponse("Invalid password"!));
+    }
 
-        [HttpPost("withdraw")]
-        public IActionResult Withdraw([FromBody] CardWithdrawRequest request)
-        {
-            var card = _atmService.FindCard(request.CardNumber);
-            if (card is null)
-            {
-                return NotFound();
-            }
+    [HttpPost("withdraw")]
+    public IActionResult Withdraw([FromBody] CardWithdrawRequest request)
+    {
+        _atmService.Withdraw(request.CardNumber, request.Amount);
 
-            card.Withdraw(request.Amount);
+        return Ok(new AtmResponse("The operation was successfully!"));
+    }
 
-            return Ok(new AtmResponce("The operation was successfully!"));
-        }
+    [HttpGet("{cardNumber}/balance")]
+    public IActionResult GetBalance(string cardNumber)
+    {
+        var balance = _atmService.GetCardBalance(cardNumber);
 
-        [HttpGet("{cardNumber}/balance")]
-        public IActionResult CheckBalance(string cardNumber)
-        {
-            return _atmService.FindCard(cardNumber) switch
-            {
-                { } card => Ok(new AtmResponce($"Balance is {card.GetBalance()}")),
-                _ => NotFound()
-            };
-        }
+        return Ok(new AtmResponse($"Balance is {balance}"));
     }
 }
