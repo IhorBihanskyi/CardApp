@@ -6,5 +6,6 @@ namespace Atm.Api.Interfaces
     {
         bool IsCardNumberExist(string cardNumber);
         Card FindCard(string cardNumber);
+        bool AuthorizeCard(string cardNumber, string cardPassword);
     }
 }

@@ -13,5 +13,15 @@ namespace Atm.Api.Services
 
         public bool IsCardNumberExist(string cardNumber) => Cards.Any(x => x.Number == cardNumber);
         public Card FindCard(string cardNumber) => Cards.SingleOrDefault(x => x.Number == cardNumber);
+
+        public bool AuthorizeCard(string cardNumber, string cardPassword)
+        {
+            return FindCard(cardNumber) switch
+            {
+                { } card => card.IsPasswordEqual(cardPassword)
+                ? true
+                : false
+            };
+        }
     }
 }

@@ -26,7 +26,7 @@
             return amount switch
             {
                 <= 0 => throw new ArgumentOutOfRangeException("You could not withdraw less or equal to zero"),
-                 > TotalAmount => throw new ArgumentOutOfRangeException("You could not withdraw more then 10000 in one day"),
+                 > TotalAmount => throw new ArgumentOutOfRangeException("Insufficient funds at the ATM!"),
                 _ => Balance -= amount
             };
         }
