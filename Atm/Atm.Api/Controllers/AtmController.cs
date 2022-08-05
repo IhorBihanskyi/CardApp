@@ -1,72 +1,60 @@
-﻿using Atm.Api.Models;
-using Atm.Api.Services;
+﻿using Atm.Api.Controllers.Requests;
+using Atm.Api.Controllers.Responses;
+using Atm.Api.Interfaces;
+using Atm.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Atm.Api.Controllers
 {
-    public sealed record AuthorizeModel(string CardPassword);
-    
+
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("/api/[controller]/cards/")]
     public class AtmController : ControllerBase
     {
-        private static readonly IReadOnlyCollection<Card> Cards = new List<Card>
+        private readonly IAtmService _atmService;
+        public AtmController(IAtmService atmService)
         {
-            new ("4444333322221111", "Troy Mcfarland","edyDfd5A", CardBrands.Visa, 800),
-            new ("5200000000001005", "Levi Downs", "teEAxnqg", CardBrands.MasterCard, 400)
-        };
-        
-        // /api/atm/cards/4444333322221111/init
-        
-        // "some message"
-        // { "message": "some message", "test": 12345 }
-        
-        // { "message": "some message", "test": 12345 }
-        
-        [HttpGet("cards/{cardNumber}/init")]
+            _atmService = atmService;
+        }
+
+        [HttpGet("{cardNumber}/init")]
         public IActionResult Init(string cardNumber)
         {
-            return Cards.Any(x => x.CardNumber == cardNumber)
-                ? Ok(new { Message = "Card was initialized successfully" })
-                : NotFound();
-            
-            return Cards.Any(x => x.CardNumber == cardNumber) switch
+            return _atmService.IsCardNumberExist(cardNumber)
+                ? Ok(new AtmResponce("Welcome in the system!"))
+                : NotFound(new AtmResponce("Your card isn't in the system!"));
+        }
+
+        [HttpPost("authorize")]
+        public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
+        {
+            return _atmService.AuthorizeCard(request.CardNumber, request.CardPassword)
+                ? Ok(new AtmResponce("Authorization was successfully!"))
+                : Unauthorized(new AtmResponce("Invalid password"!));
+        }
+
+        [HttpPost("withdraw")]
+        public IActionResult Withdraw([FromBody] CardWithdrawRequest request)
+        {
+            var card = _atmService.FindCard(request.CardNumber);
+            if (card is null)
             {
-                true => Ok(),
-                _ => BadRequest()
-            };
-            
-            if (Cards.Any(x => x.CardNumber == cardNumber))
-            {
-                return BadRequest();
+                return NotFound();
             }
 
-            return Ok();
+            card.Withdraw(request.Amount);
+
+            return Ok(new AtmResponce("The operation was successfully!"));
         }
 
-        [HttpPost("cards/{cardNumber}/authorize")]
-        public IActionResult Authorize([FromRoute] string cardNumber, [FromBody] AuthorizeModel model)
-        {
-            return Cards.SingleOrDefault(x => x.CardNumber == cardNumber && x.IsPasswordEqual(model.CardPassword))
-                is { }
-                ? Ok()
-                : Unauthorized();
-        }
-
-        [HttpPut("Init/Authorize/Withdraw")]
-        public IActionResult Withdraw(int sum, string cardNumber)
-        {
-            
-        }
-
-        [HttpGet("Init/Authorize/CheckBalance")]
+        [HttpGet("{cardNumber}/balance")]
         public IActionResult CheckBalance(string cardNumber)
         {
-            var balance = Cards
-                .Single(x => x.CardNumber == cardNumber)
-                .GetBalance();
-            
-            return Ok(balance);
+            return _atmService.FindCard(cardNumber) switch
+            {
+                { } card => Ok(new AtmResponce($"Balance is {card.GetBalance()}")),
+                _ => NotFound()
+            };
         }
     }
 }

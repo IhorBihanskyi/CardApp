@@ -2,23 +2,33 @@
 {
     public class Card
     {
-        public string CardNumber { get; }
-        public string FullName { get; }
-        public string Password { get; }
-        public CardBrands CardBrand { get; }
-        public int Balance { get; }
+        public const int TotalAmount = 10000;
 
-        public Card(string cardNumber, string fullName, string password, CardBrands cardBrand, int balance)
+        public string Number { get; }
+        public string FullName { get; }
+        public string CardPassword { get; }
+        public CardBrands CardBrand { get; }
+        public decimal Balance { get; set; }
+
+        public Card(string cardNumber, string fullName, string cardPassword, CardBrands cardBrand, decimal balance)
         {
-            CardNumber = cardNumber;
+            Number = cardNumber;
             FullName = fullName;
-            Password = password;
+            CardPassword = cardPassword;
             CardBrand = cardBrand;
             Balance = balance;
         }
 
-        public bool IsPasswordEqual(string cardPassword) => cardPassword == Password;
-
-        public int GetBalance() => Balance;
-    }
+        public bool IsPasswordEqual(string cardPassword) => cardPassword == CardPassword;
+        public decimal GetBalance() => Balance;
+        public decimal Withdraw(decimal amount)
+        {
+            return amount switch
+            {
+                <= 0 => throw new ArgumentOutOfRangeException("You could not withdraw less or equal to zero"),
+                 > TotalAmount => throw new ArgumentOutOfRangeException("Insufficient funds at the ATM!"),
+                _ => Balance -= amount
+            };
+        }
+    };
 }
