@@ -9,16 +9,16 @@ namespace Atm.Api.Controllers;
 [Route("/api/[controller]/cards/")]
 public class AtmController : ControllerBase
 {
-    private readonly IAtmService _atmService;
-    public AtmController(IAtmService atmService)
+    private readonly IBankService _bankService;
+    public AtmController(IBankService bankService)
     {
-        _atmService = atmService;
+        _bankService = bankService;
     }
 
     [HttpGet("{cardNumber}/init")]
     public IActionResult Init(string cardNumber)
     {
-        return _atmService.IsCardExist(cardNumber)
+        return _bankService.IsCardExist(cardNumber)
             ? Ok(new AtmResponse("Welcome in the system!"))
             : NotFound(new AtmResponse("Your card isn't in the system!"));
     }
@@ -26,7 +26,7 @@ public class AtmController : ControllerBase
     [HttpPost("authorize")]
     public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
     {
-        return _atmService.VerifyCardPassword(request.CardNumber, request.CardPassword)
+        return _bankService.VerifyCardPassword(request.CardNumber, request.CardPassword)
             ? Ok(new AtmResponse("Authorization was successfully!"))
             : Unauthorized(new AtmResponse("Invalid password"!));
     }
@@ -34,7 +34,7 @@ public class AtmController : ControllerBase
     [HttpPost("withdraw")]
     public IActionResult Withdraw([FromBody] CardWithdrawRequest request)
     {
-        _atmService.Withdraw(request.CardNumber, request.Amount);
+        _bankService.Withdraw(request.CardNumber, request.Amount);
 
         return Ok(new AtmResponse("The operation was successfully!"));
     }
@@ -42,7 +42,7 @@ public class AtmController : ControllerBase
     [HttpGet("{cardNumber}/balance")]
     public IActionResult GetBalance(string cardNumber)
     {
-        var balance = _atmService.GetCardBalance(cardNumber);
+        var balance = _bankService.GetCardBalance(cardNumber);
 
         return Ok(new AtmResponse($"Balance is {balance}"));
     }

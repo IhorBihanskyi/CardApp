@@ -6,9 +6,9 @@
         public string FullName { get; }
         private string CardPassword { get; }
         public CardBrands CardBrand { get; }
-        private decimal Balance { get; set; }
+        private int Balance { get; set; }
 
-        public Card(string cardNumber, string fullName, string cardPassword, CardBrands cardBrand, decimal balance)
+        public Card(string cardNumber, string fullName, string cardPassword, CardBrands cardBrand, int balance)
         {
             Number = cardNumber;
             FullName = fullName;
@@ -19,9 +19,9 @@
 
         public bool IsPasswordEqual(string cardPassword) => cardPassword == CardPassword;
         
-        public decimal GetBalance() => Balance;
+        public int GetBalance() => Balance;
         
-        public void Withdraw(decimal amount)
+        public void Withdraw(int amount)
         {
             if (amount > GetBalance())
             {

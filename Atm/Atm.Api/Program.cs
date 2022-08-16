@@ -1,3 +1,5 @@
+using Atm.Api.Helpers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddServices();
@@ -11,5 +13,7 @@ app
     .UseSwagger()
     .UseSwaggerUI()
     .UseEndpoints(x => x.MapControllers());
+
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.Run();
