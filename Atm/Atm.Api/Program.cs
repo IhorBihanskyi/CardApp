@@ -1,4 +1,4 @@
-using Atm.Api.Helpers;
+using Atm.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 

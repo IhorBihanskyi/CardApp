@@ -2,5 +2,5 @@
 
 public interface IAtmService
 {
-    void AtmWithdraw(int amount);
+    void Withdraw(string cardNumber, int amount);
 }
