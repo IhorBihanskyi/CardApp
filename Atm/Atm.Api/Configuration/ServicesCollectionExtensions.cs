@@ -7,5 +7,6 @@ public static class ServicesCollectionExtensions
     {
         services.AddSingleton<IAtmService, AtmService>();
         services.AddSingleton<IBankService, BankService>();
+        services.AddMemoryCache();
     }
 }

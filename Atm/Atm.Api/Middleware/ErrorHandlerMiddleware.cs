@@ -1,6 +1,7 @@
-﻿using Atm.Api.Helpers;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
+using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace Atm.Api.Middleware;
 
@@ -22,16 +23,16 @@ public class ErrorHandlerMiddleware
         catch (Exception error)
         {
             var response = context.Response;
-            response.ContentType = Constants.contentType;
+            response.ContentType = Application.Json;
 
             var statusCode = error switch
             {
-                InvalidOperationException => HttpStatusCode.NotFound,
-                KeyNotFoundException => HttpStatusCode.NotFound,
-                ArgumentOutOfRangeException => HttpStatusCode.BadRequest,
-                _ => HttpStatusCode.InternalServerError
+                InvalidOperationException => Status400BadRequest,
+                KeyNotFoundException => Status404NotFound,
+                ArgumentOutOfRangeException => Status400BadRequest,
+                _ => Status500InternalServerError
             };
-            response.StatusCode = (int)statusCode;
+            response.StatusCode = statusCode;
 
             var result = JsonSerializer.Serialize(new { message = error?.Message });
             await response.WriteAsync(result);
