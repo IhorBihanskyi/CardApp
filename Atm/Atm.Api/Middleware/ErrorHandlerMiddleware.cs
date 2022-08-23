@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
+using Atm.Api.Extentions;
 using static System.Net.Mime.MediaTypeNames;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
@@ -20,6 +21,12 @@ public class ErrorHandlerMiddleware
         {
             await _next(context);
         }
+        catch (InvalidOperationException ex)
+        {
+            await context.Response
+                .WithStatusCode(Status422UnprocessableEntity)
+                .WithJsonContent(ex.Message);
+        }
         catch (Exception error)
         {
             var response = context.Response;
@@ -27,7 +34,6 @@ public class ErrorHandlerMiddleware
 
             var statusCode = error switch
             {
-                InvalidOperationException => Status400BadRequest,
                 KeyNotFoundException => Status404NotFound,
                 ArgumentOutOfRangeException => Status400BadRequest,
                 _ => Status500InternalServerError

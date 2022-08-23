@@ -23,58 +23,63 @@ public class BankService : IBankService
         new ("5200000000001005", "Levi Downs", "teEAxnqg", CardBrands.MasterCard, 400)
     };
 
-    public bool IsCardExist(string cardNumber) 
+    private static readonly IReadOnlyCollection<CardBrandLimit> WithdrawLimits = new List<CardBrandLimit>
     {
-        if(Cards.Any(x => x.Number == cardNumber))
+        new (CardBrands.Visa, 200),
+        new (CardBrands.MasterCard, 300)
+    };
+
+    private static decimal GetWithdrawLimit(CardBrands cardBrand)
+    {
+        return WithdrawLimits.First(x => x.CardBrand == cardBrand).Amount;
+    }
+
+    public bool IsCardExist(string cardNumber)
+    {
+        if (Cards.Any(x => x.Number == cardNumber))
         {
             _cache.Set(initKey, cardNumber);
             return true;
         }
-        throw new ArgumentOutOfRangeException("Not allowed operation!");
+
+        throw new InvalidOperationException("Pass identification and authorization!");
     }
 
-    public Card GetCard(string cardNumber) => Cards.Single(x => x.Number == cardNumber);
-
-    public bool VerifyCardPassword(string cardNumber, string cardPassword)
+    public decimal GetCardBalance(string cardNumber)
     {
-        string token = string.Empty;
-        if (_cache.TryGetValue(initKey, out token) && GetCard(cardNumber).IsPasswordEqual(cardPassword))
+        if (_cache.TryGetValue(authorizeKey, out string token))
+        {
+            _cache.Remove(authorizeKey);
+            return GetCard(cardNumber).GetBalance();
+        }
+
+        throw new InvalidOperationException("Pass identification and authorization!");
+    }
+
+    public bool VerifyPassword(string cardNumber, string cardPassword)
+    {
+        if (_cache.TryGetValue(initKey, out string token) && GetCard(cardNumber).IsPasswordEqual(cardPassword))
         {
             _cache.Remove(initKey);
             _cache.Set(authorizeKey, cardPassword);
             return true;
         }
-        throw new ArgumentOutOfRangeException("Not allowed operation!");
+
+        throw new InvalidOperationException("Pass identification and authorization!");
     }
 
-    public int GetCardBalance(string cardNumber)
-    {
-        string token = string.Empty;
-        if (_cache.TryGetValue(authorizeKey, out token))
-        {
-            _cache.Remove(authorizeKey);
-            return GetCard(cardNumber).GetBalance();
-        }
-        throw new ArgumentOutOfRangeException("Not allowed operation!");
-    }
+    public Card GetCard(string cardNumber) => Cards.Single(x => x.Number == cardNumber);
 
-    public bool VerifyCardLimit(string cardNumber, int amount)
+    public void Withdraw(string cardNumber, int amount)
     {
         var card = GetCard(cardNumber);
+        var limit = GetWithdrawLimit(card.CardBrand);
 
-        string token = string.Empty;
-        if (_cache.TryGetValue(authorizeKey, out token))
+        if (amount > limit)
         {
-            _cache.Remove(authorizeKey);
-            return (card.CardBrand, amount) switch
-            {
-                { CardBrand: CardBrands.Visa, amount: > VisaLimit } =>
-                    throw new InvalidOperationException($"One time {card.CardBrand} withdraw limit is {VisaLimit}"),
-                { CardBrand: CardBrands.MasterCard, amount: > MasterCardLimit } =>
-                    throw new InvalidOperationException($"One time {card.CardBrand} withdraw limit is {MasterCardLimit}"),
-                _ => true
-            };
+            throw new InvalidOperationException($"One time {card.CardBrand} withdraw limit is {limit}");
         }
-        throw new ArgumentOutOfRangeException("Not allowed operation!");
+
+        card.Withdraw(amount);
     }
 }

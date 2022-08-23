@@ -24,8 +24,7 @@ public sealed class AtmService : IAtmService
             throw new ArgumentOutOfRangeException("Insufficient funds at the ATM!");
         }
 
-        _bankService.VerifyCardLimit(cardNumber, amount);
-        _bankService.GetCard(cardNumber).Withdraw(amount);
+        _bankService.Withdraw(cardNumber, amount);
 
         TotalAmount -= amount;
     }
