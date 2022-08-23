@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
-using Atm.Api.Extentions;
-using static System.Net.Mime.MediaTypeNames;
+﻿using Atm.Api.Extentions;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 namespace Atm.Api.Middleware;
@@ -27,21 +24,11 @@ public class ErrorHandlerMiddleware
                 .WithStatusCode(Status422UnprocessableEntity)
                 .WithJsonContent(ex.Message);
         }
-        catch (Exception error)
+        catch (ArgumentOutOfRangeException ex)
         {
-            var response = context.Response;
-            response.ContentType = Application.Json;
-
-            var statusCode = error switch
-            {
-                KeyNotFoundException => Status404NotFound,
-                ArgumentOutOfRangeException => Status400BadRequest,
-                _ => Status500InternalServerError
-            };
-            response.StatusCode = statusCode;
-
-            var result = JsonSerializer.Serialize(new { message = error?.Message });
-            await response.WriteAsync(result);
+            await context.Response
+                .WithStatusCode(Status413PayloadTooLarge)
+                .WithJsonContent(ex.Message);
         }
     }
 }

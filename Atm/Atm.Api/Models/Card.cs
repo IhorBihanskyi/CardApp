@@ -1,34 +1,33 @@
-﻿namespace Atm.Api.Models
+﻿namespace Atm.Api.Models;
+
+public class Card
 {
-    public class Card
+    public string Number { get; }
+    public string FullName { get; }
+    private string CardPassword { get; }
+    public CardBrands CardBrand { get; }
+    private int Balance { get; set; }
+
+    public Card(string cardNumber, string fullName, string cardPassword, CardBrands cardBrand, int balance)
     {
-        public string Number { get; }
-        public string FullName { get; }
-        private string CardPassword { get; }
-        public CardBrands CardBrand { get; }
-        private int Balance { get; set; }
+        Number = cardNumber;
+        FullName = fullName;
+        CardPassword = cardPassword;
+        CardBrand = cardBrand;
+        Balance = balance;
+    }
 
-        public Card(string cardNumber, string fullName, string cardPassword, CardBrands cardBrand, int balance)
+    public bool IsPasswordEqual(string cardPassword) => cardPassword == CardPassword;
+    
+    public int GetBalance() => Balance;
+    
+    public void Withdraw(int amount)
+    {
+        if (amount > GetBalance())
         {
-            Number = cardNumber;
-            FullName = fullName;
-            CardPassword = cardPassword;
-            CardBrand = cardBrand;
-            Balance = balance;
+            throw new ArgumentOutOfRangeException(nameof(amount), "");
         }
 
-        public bool IsPasswordEqual(string cardPassword) => cardPassword == CardPassword;
-        
-        public int GetBalance() => Balance;
-        
-        public void Withdraw(int amount)
-        {
-            if (amount > GetBalance())
-            {
-                throw new ArgumentOutOfRangeException(nameof(amount), "");
-            }
-
-            Balance -= amount;
-        }
-    };
-}
+        Balance -= amount;
+    }
+};

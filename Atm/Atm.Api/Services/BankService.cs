@@ -1,6 +1,5 @@
 ﻿using Atm.Api.Interfaces;
 using Atm.Api.Models;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Atm.Api.Services;
 public class BankService : IBankService
@@ -8,13 +7,11 @@ public class BankService : IBankService
     public const int VisaLimit = 200;
     public const int MasterCardLimit = 300;
 
-    private IMemoryCache _cache;
-    private const string initKey = "init";
-    private const string authorizeKey = "author";
+    private IAtmEventBroker _broker;
 
-    public BankService( IMemoryCache cache)
+    public BankService(IAtmEventBroker broker)
     {
-        _cache = cache;
+        _broker = broker;
     }
 
     private static readonly IReadOnlyCollection<Card> Cards = new List<Card>
@@ -38,34 +35,30 @@ public class BankService : IBankService
     {
         if (Cards.Any(x => x.Number == cardNumber))
         {
-            _cache.Set(initKey, cardNumber);
+            _broker.StartStream(cardNumber, new InitEvent());
             return true;
         }
-
-        throw new InvalidOperationException("Pass identification and authorization!");
-    }
-
-    public decimal GetCardBalance(string cardNumber)
-    {
-        if (_cache.TryGetValue(authorizeKey, out string token))
-        {
-            _cache.Remove(authorizeKey);
-            return GetCard(cardNumber).GetBalance();
-        }
-
         throw new InvalidOperationException("Pass identification and authorization!");
     }
 
     public bool VerifyPassword(string cardNumber, string cardPassword)
     {
-        if (_cache.TryGetValue(initKey, out string token) && GetCard(cardNumber).IsPasswordEqual(cardPassword))
+        if (_broker.FindEvent<InitEvent>(cardNumber) is not null && GetCard(cardNumber).IsPasswordEqual(cardPassword))
         {
-            _cache.Remove(initKey);
-            _cache.Set(authorizeKey, cardPassword);
+            _broker.AppendEvent(cardNumber, new AuthorizeEvent());
             return true;
         }
-
         throw new InvalidOperationException("Pass identification and authorization!");
+    }
+
+    public int GetCardBalance(string cardNumber)
+    {
+        if (_broker.GetLastEvent(cardNumber) is not AuthorizeEvent)
+        {
+            throw new InvalidOperationException("Pass identification and authorization!");
+        }
+        _broker.AppendEvent(cardNumber, new BalanceEvent());
+        return GetCard(cardNumber).GetBalance();
     }
 
     public Card GetCard(string cardNumber) => Cards.Single(x => x.Number == cardNumber);
@@ -79,7 +72,11 @@ public class BankService : IBankService
         {
             throw new InvalidOperationException($"One time {card.CardBrand} withdraw limit is {limit}");
         }
-
+        if (_broker.GetLastEvent(cardNumber) is not AuthorizeEvent)
+        {
+            throw new InvalidOperationException("Pass identification and authorization!");
+        }
+        _broker.AppendEvent(cardNumber, new WithDrawEvent());
         card.Withdraw(amount);
     }
 }

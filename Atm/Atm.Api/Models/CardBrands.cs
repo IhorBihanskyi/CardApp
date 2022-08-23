@@ -1,8 +1,7 @@
-﻿namespace Atm.Api.Models
+﻿namespace Atm.Api.Models;
+
+public enum CardBrands
 {
-    public enum CardBrands
-    {
-        Visa,
-        MasterCard
-    }
+    Visa,
+    MasterCard
 }

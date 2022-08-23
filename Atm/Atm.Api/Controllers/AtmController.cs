@@ -10,18 +10,16 @@ namespace Atm.Api.Controllers;
 public class AtmController : ControllerBase
 {
     private readonly IAtmService _atmService;
-    private readonly IBankService _bankService;
 
-    public AtmController(IAtmService atmService, IBankService bankService)
+    public AtmController(IAtmService atmService)
     {
         _atmService = atmService;
-        _bankService = bankService;
     }
 
     [HttpGet("{cardNumber}/init")]
     public IActionResult Init(string cardNumber)
     {
-        return _bankService.IsCardExist(cardNumber)
+        return _atmService.IsCardExist(cardNumber)
             ? Ok(new AtmResponse($"Your card in the system!"))
             : NotFound(new AtmResponse("Your card isn't in the system!"));
     }
@@ -29,7 +27,7 @@ public class AtmController : ControllerBase
     [HttpPost("authorize")]
     public IActionResult Authorize([FromBody] CardAuthorizeRequest request)
     {
-        return _bankService.VerifyCardPassword(request.CardNumber, request.CardPassword)
+        return _atmService.VerifyPassword(request.CardNumber, request.CardPassword)
         ? Ok(new AtmResponse($" Authorization was successfully!"))
         : Unauthorized(new AtmResponse("Invalid password"!));
     }
@@ -44,8 +42,7 @@ public class AtmController : ControllerBase
     [HttpGet("{cardNumber}/balance")]
     public IActionResult GetBalance(string cardNumber)
     {
-        var balance = _bankService.GetCardBalance(cardNumber);
+        var balance = _atmService.GetCardBalance(cardNumber);
         return Ok(new AtmResponse($"Balance is {balance}"));
-
     }
 }
