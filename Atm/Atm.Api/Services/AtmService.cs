@@ -16,6 +16,27 @@ public sealed class AtmService : IAtmService
         _broker = broker;
     }
 
+    public bool IsCardExist(string cardNumber)
+    {
+        if (_bankService.IsCardExist(cardNumber))
+        {
+            _broker.StartStream(cardNumber, new AtmEvent());
+            _broker.AppendEvent(cardNumber,new InitEvent());
+            return true;
+        }
+        throw new InvalidOperationException("Pass identification and authorization!");
+    }
+
+    public bool VerifyPassword(string cardNumber, string cardPassword)
+    {
+        if (_broker.FindEvent<InitEvent>(cardNumber) is not null && _bankService.VerifyPassword(cardNumber, cardPassword))
+        {
+            _broker.AppendEvent(cardNumber, new AuthorizeEvent());
+            return true;
+        }
+        throw new InvalidOperationException("Pass identification and authorization!");
+    }
+
     public void Withdraw(string cardNumber, int amount)
     {
         if (amount <= 0)
@@ -37,26 +58,6 @@ public sealed class AtmService : IAtmService
         _bankService.Withdraw(cardNumber, amount);
 
         TotalAmount -= amount;
-    }
-
-    public bool IsCardExist(string cardNumber)
-    {
-        if (_bankService.IsCardExist(cardNumber))
-        {
-            _broker.StartStream(cardNumber, new InitEvent());
-            return true;
-        }
-        throw new InvalidOperationException("Pass identification and authorization!");
-    }
-
-    public bool VerifyPassword(string cardNumber, string cardPassword)
-    {
-        if (_broker.FindEvent<InitEvent>(cardNumber) is not null && _bankService.VerifyPassword(cardNumber, cardPassword))
-        {
-            _broker.AppendEvent(cardNumber, new AuthorizeEvent());
-            return true;
-        }
-        throw new InvalidOperationException("Pass identification and authorization!");
     }
 
     public int GetCardBalance(string cardNumber)

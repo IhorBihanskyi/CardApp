@@ -10,6 +10,7 @@ public class AtmEventBroker : IAtmEventBroker
 
     public void StartStream(string key, AtmEvent @event)
     {
+        _events.Remove(key);
         _events.Add(key, new List<AtmEvent> { @event });
     }
 
