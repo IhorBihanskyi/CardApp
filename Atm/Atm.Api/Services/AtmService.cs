@@ -29,32 +29,32 @@ public sealed class AtmService : IAtmService
 
     public bool VerifyPassword(string cardNumber, string cardPassword)
     {
-        if (_broker.FindEvent<InitEvent>(cardNumber) is not null && _bankService.VerifyPassword(cardNumber, cardPassword))
+        var @event = _broker.FindEvent<InitEvent>(cardNumber);
+
+        if (@event is not null && _bankService.VerifyPassword(cardNumber, cardPassword))
         {
             _broker.AppendEvent(cardNumber, new AuthorizeEvent());
             return true;
         }
-        throw new InvalidOperationException("Pass identification and authorization!");
+        throw new InvalidOperationException("Could not perform unauthorized operation!");
     }
 
     public void Withdraw(string cardNumber, int amount)
     {
+        var @event = _broker.GetLastEvent(cardNumber);
+        if (@event is not AuthorizeEvent)
+        {
+            throw new InvalidOperationException("Could not perform unauthorized operation!");
+        }
         if (amount <= 0)
         {
             throw new ArgumentOutOfRangeException("Invalid amount entered!");
         }
-
         if (amount > TotalAmount)
         {
             throw new ArgumentOutOfRangeException("Insufficient funds at the ATM!");
         }
-
-        if (_broker.GetLastEvent(cardNumber) is not AuthorizeEvent)
-        {
-            throw new InvalidOperationException("Pass identification and authorization!");
-        }
         _broker.AppendEvent(cardNumber, new WithDrawEvent());
-
         _bankService.Withdraw(cardNumber, amount);
 
         TotalAmount -= amount;
@@ -62,11 +62,13 @@ public sealed class AtmService : IAtmService
 
     public int GetCardBalance(string cardNumber)
     {
-        if (_broker.GetLastEvent(cardNumber) is not AuthorizeEvent)
+        var @event = _broker.GetLastEvent(cardNumber);
+        if (@event is not AuthorizeEvent)
         {
-            throw new InvalidOperationException("Pass identification and authorization!");
+            throw new InvalidOperationException("Could not perform unauthorized operation!");
         }
         _broker.AppendEvent(cardNumber, new BalanceEvent());
+
         return _bankService.GetCardBalance(cardNumber);
     }
 }
