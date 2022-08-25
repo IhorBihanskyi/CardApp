@@ -21,7 +21,7 @@ public class AtmEventBroker : IAtmEventBroker
 
     public AtmEvent? FindEvent<T>(string key) where T : AtmEvent
     {
-        return _events[key].Where(x => x.GetType() == typeof(T)).FirstOrDefault();
+        return _events[key].FirstOrDefault(x => x is T);
     }
 
     public AtmEvent GetLastEvent(string key)
