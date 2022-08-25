@@ -30,13 +30,16 @@ public sealed class AtmService : IAtmService
     public bool VerifyPassword(string cardNumber, string cardPassword)
     {
         var @event = _broker.FindEvent<InitEvent>(cardNumber);
-
-        if (@event is not null && _bankService.VerifyPassword(cardNumber, cardPassword))
+        if (@event is null)
         {
-            _broker.AppendEvent(cardNumber, new AuthorizeEvent());
-            return true;
+            throw new InvalidOperationException("Could not perform unauthorized operation!");
         }
-        throw new InvalidOperationException("Could not perform unauthorized operation!");
+        if (!_bankService.VerifyPassword(cardNumber, cardPassword))
+        {
+            return false;
+        }
+        _broker.AppendEvent(cardNumber, new AuthorizeEvent());
+        return true;
     }
 
     public void Withdraw(string cardNumber, int amount)
