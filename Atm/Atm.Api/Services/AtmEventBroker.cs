@@ -21,11 +21,21 @@ public class AtmEventBroker : IAtmEventBroker
 
     public AtmEvent? FindEvent<T>(string key) where T : AtmEvent
     {
-        return _events[key].FirstOrDefault(x => x is T);
+        if (_events.TryGetValue(key, out var events))
+        {
+            return events.FirstOrDefault(x => x is T);
+        }
+
+        throw new KeyNotFoundException("Could not perform unauthorized operation!");
     }
 
     public AtmEvent GetLastEvent(string key)
     {
-        return _events[key].Last();
+        if (_events.TryGetValue(key, out var events))
+        {
+            return _events[key].Last();
+        }
+
+        throw new KeyNotFoundException("Could not perform unauthorized operation!");
     }
 }
