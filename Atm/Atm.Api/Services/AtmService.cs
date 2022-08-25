@@ -18,13 +18,13 @@ public sealed class AtmService : IAtmService
 
     public bool IsCardExist(string cardNumber)
     {
-        if (_bankService.IsCardExist(cardNumber))
+        if (!_bankService.IsCardExist(cardNumber))
         {
-            _broker.StartStream(cardNumber, new AtmEvent());
-            _broker.AppendEvent(cardNumber,new InitEvent());
-            return true;
+            return false;
         }
-        throw new InvalidOperationException("Pass identification and authorization!");
+        _broker.StartStream(cardNumber, new AtmEvent());
+        _broker.AppendEvent(cardNumber, new InitEvent());
+        return true;
     }
 
     public bool VerifyPassword(string cardNumber, string cardPassword)
