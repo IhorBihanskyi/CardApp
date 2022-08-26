@@ -30,5 +30,11 @@ public class ErrorHandlerMiddleware
                 .WithStatusCode(Status413PayloadTooLarge)
                 .WithJsonContent(ex.Message);
         }
+        catch (KeyNotFoundException ex)
+        {
+            await context.Response
+                .WithStatusCode(Status401Unauthorized)
+                .WithJsonContent(ex.Message);
+        }
     }
 }

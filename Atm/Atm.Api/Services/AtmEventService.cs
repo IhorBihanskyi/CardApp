@@ -16,8 +16,7 @@ public class AtmEventService : IAtmService
         {
             return false;
         }
-        _broker.StartStream(cardNumber, new AtmEvent());
-        _broker.AppendEvent(cardNumber, new InitEvent());
+        _broker.StartStream(cardNumber, new InitEvent());
         return true;
     }
 
