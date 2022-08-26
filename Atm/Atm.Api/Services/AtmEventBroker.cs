@@ -14,10 +14,9 @@ public class AtmEventBroker : IAtmEventBroker
         _events.Add(key, new List<AtmEvent> { @event });
     }
 
-    public void AppendEvent(string key, AtmEvent @event)
-    {
+    public void AppendEvent(string key, AtmEvent @event) =>
         _events[key].Add(@event);
-    }
+
 
     public AtmEvent? FindEvent<T>(string key) where T : AtmEvent
     {

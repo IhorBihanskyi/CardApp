@@ -8,6 +8,6 @@ public static class ServicesCollectionExtensions
         services.AddSingleton<IAtmService, AtmService>();
         services.AddSingleton<IBankService, BankService>();
         services.AddSingleton<IAtmEventBroker, AtmEventBroker>();
-        services.AddMemoryCache();
+        services.Decorate<IAtmService, AtmEventService>();
     }
 }

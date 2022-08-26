@@ -19,25 +19,24 @@ public class BankService : IBankService
         new (CardBrands.MasterCard, 300)
     };
 
-    private static decimal GetWithdrawLimit(CardBrands cardBrand)
-    {
-        return WithdrawLimits.First(x => x.CardBrand == cardBrand).Amount;
-    }
+    private static decimal GetWithdrawLimit(CardBrands cardBrand) =>
+         WithdrawLimits.First(x => x.CardBrand == cardBrand).Amount;
 
-    public bool IsCardExist(string cardNumber) => Cards.Any(x => x.Number == cardNumber);
-    
 
-    public bool VerifyPassword(string cardNumber, string cardPassword)
-    {
-        return GetCard(cardNumber).IsPasswordEqual(cardPassword);
-    }
+    public bool IsCardExist(string cardNumber) =>
+        Cards.Any(x => x.Number == cardNumber);
 
-    public int GetCardBalance(string cardNumber)
-    {
-        return GetCard(cardNumber).GetBalance();
-    }
 
-    public Card GetCard(string cardNumber) => Cards.Single(x => x.Number == cardNumber);
+    public bool VerifyPassword(string cardNumber, string cardPassword) =>
+        GetCard(cardNumber).IsPasswordEqual(cardPassword);
+
+
+    public int GetCardBalance(string cardNumber) =>
+        GetCard(cardNumber).GetBalance();
+
+
+    public Card GetCard(string cardNumber) =>
+        Cards.Single(x => x.Number == cardNumber);
 
     public void Withdraw(string cardNumber, int amount)
     {
@@ -48,7 +47,7 @@ public class BankService : IBankService
         {
             throw new InvalidOperationException($"One time {card.CardBrand} withdraw limit is {limit}");
         }
-        
+
         card.Withdraw(amount);
     }
 }
