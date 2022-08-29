@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Atm.Api.Controllers.Requests;
 using Atm.Api.Controllers.Responses;
-using Atm.Api.Extentions;
+using Atm.Api.Services;
 
 namespace Atm.Api.Controllers;
 
