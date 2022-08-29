@@ -13,7 +13,6 @@ app
     .UseSwagger()
     .UseSwaggerUI()
     .UseEndpoints(x => x.MapControllers());
-
 app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.Run();

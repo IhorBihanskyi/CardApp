@@ -1,5 +1,6 @@
 ﻿using Atm.Api.Services;
 using Atm.Api.Interfaces;
+using Atm.Api.Extentions;
 
 public static class ServicesCollectionExtensions
 {
@@ -11,5 +12,6 @@ public static class ServicesCollectionExtensions
                         new AtmService(sp.GetRequiredService<IBankService>()),
                         sp.GetRequiredService<IAtmEventBroker>()));
         services.AddSingleton<IAtmEventBroker, AtmEventBroker>();
+        services.AddSingleton<AtmLinkGenerator>();
     }
 }   
