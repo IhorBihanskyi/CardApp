@@ -18,7 +18,7 @@ public class AtmController : ControllerBase
     }
 
     [HttpGet("{cardNumber}/init", Name = nameof(Init))]
-    public IActionResult Init([FromServices] AtmLinkGenerator linkGenerator, [FromRoute] string cardNumber)
+    public IActionResult Init([FromServices] IAtmLinkGenerator linkGenerator, [FromRoute] string cardNumber)
     {
 
         var links = linkGenerator.GetAssociatedEndpoints(HttpContext, nameof(Init));
@@ -29,7 +29,7 @@ public class AtmController : ControllerBase
     }
 
     [HttpPost("authorize", Name = nameof(Authorize))]
-    public IActionResult Authorize([FromServices] AtmLinkGenerator linkGenerator, [FromBody] CardAuthorizeRequest request)
+    public IActionResult Authorize([FromServices] IAtmLinkGenerator linkGenerator, [FromBody] CardAuthorizeRequest request)
     {
         var links = linkGenerator.GetAssociatedEndpoints(HttpContext, nameof(Authorize), new { request.CardNumber });
 
@@ -39,7 +39,7 @@ public class AtmController : ControllerBase
     }
 
     [HttpPost("withdraw", Name = nameof(Withdraw))]
-    public IActionResult Withdraw([FromServices] AtmLinkGenerator linkGenerator, [FromBody] CardWithdrawRequest request)
+    public IActionResult Withdraw([FromServices] IAtmLinkGenerator linkGenerator, [FromBody] CardWithdrawRequest request)
     {
         var links = linkGenerator.GetAssociatedEndpoints(HttpContext, nameof(Init));
 
@@ -48,7 +48,7 @@ public class AtmController : ControllerBase
     }
 
     [HttpGet("{cardNumber}/balance", Name = nameof(GetBalance))]
-    public IActionResult GetBalance([FromServices] AtmLinkGenerator linkGenerator, [FromRoute] string cardNumber)
+    public IActionResult GetBalance([FromServices] IAtmLinkGenerator linkGenerator, [FromRoute] string cardNumber)
     {
         var links = linkGenerator.GetAssociatedEndpoints(HttpContext, nameof(Init));
 

@@ -1,36 +1,41 @@
 ﻿using Atm.Api.Controllers;
 using Atm.Api.Controllers.Common;
 using Atm.Api.Extentions;
+using Atm.Api.Interfaces;
 
 namespace Atm.Api.Services;
 
-public sealed class AtmLinkGenerator
+public sealed class AtmLinkGenerator : IAtmLinkGenerator
 {
     private readonly LinkGenerator _linkGenerator;
     public AtmLinkGenerator(LinkGenerator linkGenerator) => _linkGenerator = linkGenerator;
-
+    
     public ApiEndpoint[] GetAssociatedEndpoints(HttpContext httpContext, string endpointName, object? values = null)
     {
         return endpointName switch
         {
-            nameof(AtmController.Init) => new[]
+            nameof(AtmController.Init) => GetAuthorizeLink(httpContext),
+            nameof(AtmController.Authorize) => GetBalanceWithdrawLink(httpContext, values),
+            nameof(AtmController.GetBalance) => GetAuthorizeLink(httpContext),
+            nameof(AtmController.Withdraw) => GetAuthorizeLink(httpContext),
+            _ => throw new ArgumentOutOfRangeException("Invalid data!")
+        };
+    }
+
+    private ApiEndpoint[] GetAuthorizeLink(HttpContext httpContext)
+    {
+        return new[]
             {
             _linkGenerator.GetAssociatedEndpoint(httpContext, HttpMethod.Post, nameof(AtmController.Authorize))
-            },
-            nameof(AtmController.Authorize) => new[]
+            };
+    }
+
+    private ApiEndpoint[] GetBalanceWithdrawLink(HttpContext httpContext, object? values = null)
+    {
+        return new[]
             {
             _linkGenerator.GetAssociatedEndpoint(httpContext, HttpMethod.Get, nameof(AtmController.GetBalance), values),
             _linkGenerator.GetAssociatedEndpoint(httpContext, HttpMethod.Post, nameof(AtmController.Withdraw))
-            },
-            nameof(AtmController.GetBalance) => new[]
-            {
-                _linkGenerator.GetAssociatedEndpoint(httpContext, HttpMethod.Post, nameof(AtmController.Authorize))
-            },
-            nameof(AtmController.Withdraw) => new[]
-            {
-                _linkGenerator.GetAssociatedEndpoint(httpContext, HttpMethod.Post, nameof(AtmController.Authorize))
-            },
-            _ => throw new ArgumentOutOfRangeException("Invalid data!")
-        };
+            };
     }
 }

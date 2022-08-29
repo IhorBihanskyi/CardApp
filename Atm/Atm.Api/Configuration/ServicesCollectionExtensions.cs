@@ -7,11 +7,11 @@ public static class ServicesCollectionExtensions
     public static void AddServices(this IServiceCollection services)
     {
         services.AddSingleton<IBankService, BankService>();
+        services.AddSingleton<IAtmLinkGenerator, AtmLinkGenerator>();
         services.AddSingleton<IAtmService, AtmEventService>(sp
                 => new AtmEventService(
                         new AtmService(sp.GetRequiredService<IBankService>()),
                         sp.GetRequiredService<IAtmEventBroker>()));
         services.AddSingleton<IAtmEventBroker, AtmEventBroker>();
-        services.AddSingleton<AtmLinkGenerator>();
     }
-}   
+}
